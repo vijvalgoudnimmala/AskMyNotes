@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AskMyNotes</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F2F3EE',
+                        'paper-light': '#FBFCF9',
+                        ink: '#1B1D1F',
+                        'ink-soft': '#5B5F63',
+                        rule: '#DADDD6',
+                        highlighter: '#D7ED54',
+                        'highlighter-deep': '#C3DB3E',
+                        annotate: '#2338C4',
+                        flag: '#B8432F',
+                    },
+                    fontFamily: {
+                        display: ['Fraunces', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'monospace'],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        body {
+            background-color: #F2F3EE;
+            background-image: linear-gradient(#E4E6DE 1px, transparent 1px);
+            background-size: 100% 32px;
+            background-position: 0 96px;
+        }
+
+        ::selection { background: #D7ED54; color: #1B1D1F; }
+        input:focus, textarea:focus { outline: none; }
+        .focus-ring:focus-within { box-shadow: 0 0 0 2px #2338C4; }
+
+        /* Kill the browser's default blue autofill tint */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
+            -webkit-text-fill-color: #1B1D1F;
+            transition: background-color 9999s ease-in-out 0s;
+        }
+
+        /* Theme the tick boxes so they match the palette, not OS default blue */
+        input[type="checkbox"] { accent-color: #2338C4; }
+    </style>
+</head>
+
+<body class="bg-paper min-h-screen flex items-center justify-center p-6 font-sans text-ink">
+
+    <div id="mainContainer"
+    class="relative w-full max-w-2xl bg-paper-light p-8 md:p-10 rounded-2xl shadow-[0_1px_2px_rgba(27,29,31,0.06),0_16px_40px_-12px_rgba(27,29,31,0.18)] border border-rule">
+
+        <button id="signOutButton" type="button"
+        class="absolute top-5 right-5 md:top-6 md:right-6 font-mono text-xs text-ink-soft hover:text-flag transition-colors">
+            <a href="signup.html">Sign out →</a>
+        </button>
+
+        <div id="headerSection" class="text-center mb-8">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2 L15.4 9.8 L23 12.2 L15.4 14.6 L13 22.4 L10.6 14.6 L3 12.2 L10.6 9.8 Z" fill="#1B1D1F"/>
+                    <path d="M13 2 L15.4 9.8 L23 12.2 L15.4 14.6 L13 22.4 L10.6 14.6 L3 12.2 L10.6 9.8 Z" fill="none" stroke="#D7ED54" stroke-width="0.6"/>
+                </svg>
+                <span class="font-mono text-xs tracking-widest uppercase text-ink-soft">// notebook, meet questions</span>
+            </div>
+            <h1 id="mainTitle"
+            class="font-display text-4xl font-semibold text-ink mb-3">
+                AskMyNotes <span class="italic font-normal text-ink-soft">AI</span>
+            </h1>
+            <p id="subtitle"
+            class="text-ink-soft text-base">
+                Chat with your PDF notes using AI-powered retrieval.
+            </p>
+        </div>
+
+        <hr class="mb-8 border-rule">
+
+        <div id="uploadSection" class="mb-8">
+            <h2 id="uploadHeading"
+            class="font-display text-2xl font-semibold text-ink mb-4">
+                Upload Notes
+            </h2>
+            <label id="uploadLabel" for="fileInput"
+            class="block text-sm font-medium text-ink-soft mb-3">
+                Choose your notes file:
+            </label>
+            <input
+                id="fileInput"
+                type="file"
+                class="w-full p-4 border-2 border-dashed border-highlighter-deep/70 rounded-xl bg-highlighter/10 text-sm text-ink-soft file:bg-highlighter-deep file:text-ink file:border-none file:px-5 file:py-2 file:rounded-lg file:font-medium file:cursor-pointer file:mr-4 hover:file:bg-highlighter cursor-pointer transition-colors"
+            >
+            <p id="uploadStatus"
+            class="mt-3 text-xs font-mono text-ink-soft">
+                No file uploaded
+            </p>
+        </div>
+
+        <hr class="mb-8 border-rule">
+
+        <div id="questionSection" class="mb-8">
+            <h2 id="questionHeading"
+            class="font-display text-2xl font-semibold text-ink mb-4">
+                Ask a Question
+            </h2>
+            <label id="questionLabel" for="questionInput"
+            class="block text-sm font-medium text-ink-soft mb-3">
+                Enter your question:
+            </label>
+            <div class="focus-ring rounded-xl">
+                <textarea
+                    id="questionInput"
+                    rows="5"
+                    placeholder="What do my notes say about..."
+                    class="w-full border border-rule bg-white rounded-xl p-4 text-sm text-ink placeholder:text-ink-soft/50 resize-none transition-shadow"
+                ></textarea>
+            </div>
+            <button
+                id="askButton"
+                class="mt-5 bg-highlighter-deep text-ink px-7 py-3 rounded-full font-semibold hover:bg-highlighter active:scale-95 transition duration-200 shadow-sm"
+            >
+                Submit
+            </button>
+        </div>
+
+        <hr class="mb-8 border-rule">
+
+        <div id="answerSection">
+    <h2 class="font-display text-2xl font-semibold text-ink mb-4">
+        Answer
+    </h2>
+
+    <p id="statusEl"
+       class="min-h-[1.25rem] font-mono text-xs text-ink-soft"></p>
+
+    <div id="answerEl"
+         class="bg-white border border-rule rounded-xl p-5 mt-2">
+
+        <p id="answerTextEl"
+           class="text-[15px] leading-relaxed text-ink">
+            Your answer will appear here...
+        </p>
+
+        </div>
+
+        </div>
+
+        <hr class="my-8 border-rule">
+
+        <footer id="footer"
+        class="text-center font-mono text-xs text-ink-soft">
+            AskMyNotes AI Capstone Project
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

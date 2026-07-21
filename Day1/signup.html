@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AskMyNotes AI — Sign in or create an account</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#F2F3EE',
+          'paper-light': '#FBFCF9',
+          ink: '#1B1D1F',
+          'ink-soft': '#5B5F63',
+          rule: '#DADDD6',
+          highlighter: '#D7ED54',
+          'highlighter-deep': '#C3DB3E',
+          annotate: '#2338C4',
+        },
+        fontFamily: {
+          display: ['Fraunces', 'serif'],
+          sans: ['Inter', 'sans-serif'],
+          mono: ['IBM Plex Mono', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  body {
+    background-color: #F2F3EE;
+    background-image: linear-gradient(#E4E6DE 2px, transparent 1px);
+    background-size: 100% 32px;
+    background-position: 0 96px;
+  }
+
+  ::selection { background: #D7ED54; color: #1B1D1F; }
+  input:focus { outline: none; }
+  .focus-ring:focus-within { box-shadow: 0 0 0 2px #000000; }
+
+  /* ---------- Sliding track (the ONLY moving part) ---------- */
+  .viewport {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+  .track {
+    display: flex;
+    width: 200%;
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+    transform: translateX(0%);
+  }
+  .track.show-signin { transform: translateX(-50%); }
+  .track > .form-slide {
+    width: 50%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  /* ---------- Torn paper edge on the static brand panel ---------- */
+  .torn-edge {
+    clip-path: polygon(
+      0 0, 100% 0,
+      100% 4%, 98.6% 9%, 100% 14%, 98.3% 19%, 100% 24%,
+      98.6% 29%, 100% 34%, 98.4% 39%, 100% 44%, 98.7% 49%,
+      100% 54%, 98.3% 59%, 100% 64%, 98.6% 69%, 100% 74%,
+      98.4% 79%, 100% 84%, 98.6% 89%, 100% 94%, 100% 100%,
+      0 100%, 0 0
+    );
+  }
+
+  @media (max-width: 767px) {
+    .torn-edge { clip-path: none; }
+  }
+</style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 md:p-10 font-sans text-ink">
+
+  <div class="w-full max-w-5xl">
+
+    <!-- Wordmark -->
+    <div class="flex items-center gap-2 mb-6 md:mb-7 justify-center md:justify-start">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 2 L15.4 9.8 L23 12.2 L15.4 14.6 L13 22.4 L10.6 14.6 L3 12.2 L10.6 9.8 Z" fill="#1B1D1F"/>
+        <path d="M13 2 L15.4 9.8 L23 12.2 L15.4 14.6 L13 22.4 L10.6 14.6 L3 12.2 L10.6 9.8 Z" fill="none" stroke="#D7ED54" stroke-width="0.6"/>
+      </svg>
+      <span class="font-display font-semibold text-lg tracking-tight">AskMyNotes <span class="italic font-normal text-ink-soft">AI</span></span>
+    </div>
+
+    <!-- Mobile tab switcher -->
+    <div class="md:hidden flex mb-6 rounded-full bg-paper-light border border-rule p-1">
+      <button id="tab-signup" class="flex-1 py-2.5 rounded-full text-sm font-medium transition-colors" onclick="setMode(false)">Create account</button>
+      <button id="tab-signin" class="flex-1 py-2.5 rounded-full text-sm font-medium transition-colors" onclick="setMode(true)">Sign in</button>
+    </div>
+
+    <div class="flex rounded-2xl md:rounded-[28px] shadow-[0_1px_2px_rgba(27,29,31,0.06),0_16px_40px_-12px_rgba(27,29,31,0.18)] bg-paper-light border border-rule overflow-hidden min-h-[600px]">
+
+      <!-- ============ STATIC BRAND PANEL (desktop only, never slides) ============ -->
+      <div class="hidden md:flex torn-edge flex-col justify-center w-[42%] shrink-0 px-10 py-12 text-ink relative"
+           style="background: linear-gradient(155deg, #DFEF7C 0%, #D7ED54 45%, #C3DB3E 100%);">
+
+        <p id="brand-eyebrow" class="font-mono text-xs tracking-widest uppercase text-ink/60 mb-4">// already annotated</p>
+        <h2 id="brand-heading" class="font-display italic text-3xl font-medium mb-4 leading-tight">Welcome<br/>back.</h2>
+        <p id="brand-copy" class="text-sm text-ink/70 mb-6 max-w-[26ch]">Sign in to keep asking your notes the questions that matter.</p>
+
+        <div id="brand-snippet" class="hidden mb-6 max-w-[26ch] text-left bg-white/60 rounded-lg px-3.5 py-3 border border-ink/10">
+          <p class="text-[11px] text-ink-soft mb-1.5">Q: what is java?</p>
+          <p class="text-[11px] text-ink">A: java is a<span class="bg-highlighter-deep px-1 rounded-[2px] -rotate-1 inline-block">object oriented programming</span> language.</p>
+        </div>
+
+        <button id="brand-cta" onclick="setMode(true)" class="self-start border-2 border-ink text-ink rounded-full px-8 py-2.5 text-sm font-medium hover:bg-ink hover:text-highlighter transition-colors">
+          Sign in
+        </button>
+      </div>
+
+      <!-- ============ SLIDING FORMS VIEWPORT ============ -->
+      <div class="viewport flex-1">
+        <div id="track" class="track">
+
+          <!-- SIGN UP -->
+          <div class="form-slide flex flex-col justify-center px-8 sm:px-12 py-12">
+            <p class="font-mono text-xs tracking-widest uppercase text-ink-soft mb-3">// new notebook</p>
+            <h1 class="font-display text-3xl font-semibold mb-2">Create your account</h1>
+            <p class="text-ink-soft text-sm mb-8">Upload your notes once, ask them anything forever.</p>
+
+            <form class="space-y-4" onsubmit="event.preventDefault();">
+              <div>
+                <label for="su-name" class="block text-xs font-medium text-ink-soft mb-1.5">Full name</label>
+                <input id="su-name" type="text" placeholder="Vijval Goud" class="w-full rounded-lg border border-rule bg-white px-4 py-2.5 text-sm placeholder:text-ink-soft/50 focus-ring transition-shadow" />
+              </div>
+              <div>
+                <label for="su-email" class="block text-xs font-medium text-ink-soft mb-1.5">Email</label>
+                <input id="su-email" type="email" placeholder="vijval@gmail.com" class="w-full rounded-lg border border-rule bg-white px-4 py-2.5 text-sm placeholder:text-ink-soft/50 focus-ring transition-shadow" />
+              </div>
+              <div>
+                <label for="su-pass" class="block text-xs font-medium text-ink-soft mb-1.5">Password</label>
+                <div class="relative">
+                  <input id="su-pass" type="password" placeholder="At least 8 characters" class="w-full rounded-lg border border-rule bg-white px-4 py-2.5 pr-11 text-sm placeholder:text-ink-soft/50 focus-ring transition-shadow" />
+                  <button type="button" onclick="togglePw('su-pass', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink" aria-label="Show password">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <label class="flex items-start gap-2.5 pt-1 cursor-pointer">
+                <input type="checkbox" class="mt-0.5 h-4 w-4 rounded border-rule text-annotate focus:ring-annotate" />
+                <span class="text-xs text-ink-soft leading-relaxed">I agree to the <a href="#" class="text-ink underline underline-offset-2 hover:text-annotate">Terms</a> and <a href="#" class="text-ink underline underline-offset-2 hover:text-annotate">Privacy Policy</a>.</span>
+              </label>
+
+              <button type="submit" class="w-full bg-ink text-paper-light rounded-lg py-2.5 text-sm font-medium hover:bg-black transition-colors mt-2">
+                Create account
+              </button>
+            </form>
+
+            <p class="md:hidden text-center text-xs text-ink-soft mt-6">
+              Already have an account?
+              <button onclick="setMode(true)" class="text-ink font-medium underline underline-offset-2">Sign in</button>
+            </p>
+          </div>
+
+          <!-- SIGN IN -->
+          <div class="form-slide flex flex-col justify-center px-8 sm:px-12 py-12">
+            <p class="font-mono text-xs tracking-widest uppercase text-ink-soft mb-3">// welcome back</p>
+            <h1 class="font-display text-3xl font-semibold mb-2">Sign in</h1>
+            <p class="text-ink-soft text-sm mb-8">Pick up right where your notes left off.</p>
+
+            <form class="space-y-4" onsubmit="event.preventDefault();">
+              <div>
+                <label for="si-email" class="block text-xs font-medium text-ink-soft mb-1.5">Email</label>
+                <input id="si-email" type="email" placeholder="vijval@gmail.com" class="w-full rounded-lg border border-rule bg-white px-4 py-2.5 text-sm placeholder:text-ink-soft/50 focus-ring transition-shadow" />
+              </div>
+              <div>
+                <label for="si-pass" class="block text-xs font-medium text-ink-soft mb-1.5">Password</label>
+                <div class="relative">
+                  <input id="si-pass" type="password" placeholder="Your password" class="w-full rounded-lg border border-rule bg-white px-4 py-2.5 pr-11 text-sm placeholder:text-ink-soft/50 focus-ring transition-shadow" />
+                  <button type="button" onclick="togglePw('si-pass', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink" aria-label="Show password">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="h-4 w-4 rounded border-rule text-annotate focus:ring-annotate" />
+                  <span class="text-xs text-ink-soft">Remember me</span>
+                </label>
+                <a href="#" class="text-xs text-annotate hover:underline">Forgot password?</a>
+              </div>
+
+              <button type="submit" class="w-full bg-ink text-paper-light rounded-lg py-2.5 text-sm font-medium hover:bg-black transition-colors mt-2">
+                Sign in
+              </button>
+            </form>
+
+            <p class="md:hidden text-center text-xs text-ink-soft mt-6">
+              New here?
+              <button onclick="setMode(false)" class="text-ink font-medium underline underline-offset-2">Create an account</button>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <p class="text-center text-xs text-ink-soft mt-6 font-mono">AskMyNotes AI — your notes, answering back.</p>
+  </div>
+
+<script>
+  const track = document.getElementById('track');
+  const tabSignup = document.getElementById('tab-signup');
+  const tabSignin = document.getElementById('tab-signin');
+  const brandEyebrow = document.getElementById('brand-eyebrow');
+  const brandHeading = document.getElementById('brand-heading');
+  const brandCopy = document.getElementById('brand-copy');
+  const brandSnippet = document.getElementById('brand-snippet');
+  const brandCta = document.getElementById('brand-cta');
+
+  function setMode(showSignin) {
+    // slide the form track
+    track.classList.toggle('show-signin', showSignin);
+
+    // mobile tab styling
+    tabSignup.classList.toggle('bg-ink', !showSignin);
+    tabSignup.classList.toggle('text-paper-light', !showSignin);
+    tabSignup.classList.toggle('text-ink-soft', showSignin);
+    tabSignin.classList.toggle('bg-ink', showSignin);
+    tabSignin.classList.toggle('text-paper-light', showSignin);
+    tabSignin.classList.toggle('text-ink-soft', !showSignin);
+
+    // static brand panel content swap
+    if (showSignin) {
+      brandEyebrow.textContent = '// first time here';
+      brandHeading.innerHTML = 'Hello,<br/>reader.';
+      brandCopy.textContent = 'Create an account and turn your notes into answers.';
+      brandSnippet.classList.remove('hidden');
+      brandCta.textContent = 'Create account';
+      brandCta.setAttribute('onclick', 'setMode(false)');
+    } else {
+      brandEyebrow.textContent = '// already annotated';
+      brandHeading.innerHTML = 'Welcome<br/>back.';
+      brandCopy.textContent = 'Sign in to keep asking your notes the questions that matter.';
+      brandSnippet.classList.add('hidden');
+      brandCta.textContent = 'Sign in';
+      brandCta.setAttribute('onclick', 'setMode(true)');
+    }
+  }
+
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.classList.toggle('text-annotate');
+  }
+
+  setMode(false);
+</script>
+</body>
+</html>

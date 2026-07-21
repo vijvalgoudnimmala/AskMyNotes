@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AskMyNotes AI — Ask your notes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="script.js">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#F2F3EE',
+          'paper-light': '#FBFCF9',
+          ink: '#1B1D1F',
+          'ink-soft': '#5B5F63',
+          rule: '#DADDD6',
+          highlighter: '#D7ED54',
+          'highlighter-deep': '#C3DB3E',
+          annotate: '#2338C4',
+        },
+        fontFamily: {
+          display: ['Fraunces', 'serif'],
+          sans: ['Inter', 'sans-serif'],
+          mono: ['IBM Plex Mono', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  body {
+    background-color: #F2F3EE;
+    background-image: linear-gradient(#E4E6DE 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-position: 0 96px;
+  }
+
+  ::selection { background: #D7ED54; color: #1B1D1F; }
+  textarea:focus, input:focus { outline: none; }
+  .focus-ring:focus-within { box-shadow: 0 0 0 2px #000000; }
+
+  /* Torn paper edge, mirrors the signup brand panel */
+  .torn-edge {
+    clip-path: polygon(
+      0 0, 100% 0,
+      100% 4%, 98.6% 9%, 100% 14%, 98.3% 19%, 100% 24%,
+      98.6% 29%, 100% 34%, 98.4% 39%, 100% 44%, 98.7% 49%,
+      100% 54%, 98.3% 59%, 100% 64%, 98.6% 69%, 100% 74%,
+      98.4% 79%, 100% 84%, 98.6% 89%, 100% 94%, 100% 100%,
+      0 100%, 0 0
+    );
+  }
+  @media (max-width: 767px) { .torn-edge { clip-path: none; } }
+
+  /* Dashed dropzone that reacts to drag-over, toggled by app.js if desired */
+  .dropzone {
+    border: 1.5px dashed rgba(27,29,31,0.28);
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .dropzone.drag-over {
+    border-color: #1B1D1F;
+    background-color: rgba(255,255,255,0.55);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .02em;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    border: 1px solid #DADDD6;
+    background: #FBFCF9;
+    color: #5B5F63;
+  }
+
+  .spin {
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+
+<body class="min-h-screen text-ink font-sans">
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="w-full border-b border-rule bg-paper-light/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2 L15.4 9.8 L23 12.2 L15.4 14.6 L13 22.4 L10.6 14.6 L3 12.2 L10.6 9.8 Z" fill="#1B1D1F"/>
+          <path d="M13 2 L15.4 9.8 L23 12.2 L15.4 14.6 L13 22.4 L10.6 14.6 L3 12.2 L10.6 9.8 Z" fill="none" stroke="#D7ED54" stroke-width="0.6"/>
+        </svg>
+        <span class="font-display font-semibold text-lg tracking-tight">AskMyNotes <span class="italic font-normal text-ink-soft">AI</span></span>
+      </div>
+      <button class="font-mono text-xs text-ink-soft hover:text-ink transition-colors">sign out →</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-3">
+
+    <div class="flex flex-col md:flex-row rounded-2xl md:rounded-[28px] shadow-[0_1px_2px_rgba(27,29,31,0.06),0_16px_40px_-12px_rgba(27,29,31,0.18)] bg-paper-light border border-rule overflow-hidden min-h-[640px]">
+
+      <!-- ============ LEFT: NOTES / UPLOAD PANEL ============ -->
+      <div class="torn-edge md:w-[38%] shrink-0 px-8 md:px-10 py-10 md:py-12 text-ink relative flex flex-col"
+           style="background: linear-gradient(155deg, #DFEF7C 0%, #D7ED54 45%, #C3DB3E 100%);">
+
+        <p class="font-mono text-xs tracking-widest uppercase text-ink/60 mb-4">// your notebook</p>
+        <h1 class="font-display italic text-3xl font-medium mb-3 leading-tight">Upload<br/>your notes.</h1>
+        <p class="text-sm text-ink/70 mb-8 max-w-[30ch]">One PDF is all it takes. We'll read it so you don't have to, twice.</p>
+
+        <section>
+          <label for="pdf-input" class="dropzone rounded-xl px-5 py-8 flex flex-col items-center justify-center text-center gap-3 cursor-pointer bg-white/40 hover:bg-white/60">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1B1D1F" stroke-width="1.6">
+              <path d="M12 16V4M12 4l-4 4M12 4l4 4"/>
+              <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+            </svg>
+            <span class="text-sm font-medium">Drop a PDF, or click to browse</span>
+            <span class="font-mono text-[11px] text-ink/60">.pdf · one file at a time</span>
+          </label>
+          <input type="file" id="pdf-input" accept="application/pdf" class="sr-only" />
+          <p id="upload-status" class="font-mono text-xs text-ink/70 mt-3 min-h-[1em]"></p>
+        </section>
+
+        <div class="mt-auto pt-10 max-w-[30ch] text-left bg-white/60 rounded-lg px-5 py-10 border border-ink/10">
+          <p class="text-[11px] text-ink-soft mb-1.5">Q: what is java?</p>
+          <p class="text-[11px] text-ink">A: java is a <span class="bg-highlighter-deep px-1 rounded-[2px] -rotate-1 inline-block">object oriented programming</span> language.</p>
+        </div>
+      </div>
+
+      <!-- ============ RIGHT: ASK / ANSWER PANEL ============ -->
+      <div class="flex-1 flex flex-col px-8 sm:px-12 py-10 md:py-12">
+
+        <p class="font-mono text-xs tracking-widest uppercase text-ink-soft mb-3">// ask it something</p>
+        <h2 class="font-display text-3xl font-semibold mb-2">Ask your notes</h2>
+        <p class="text-ink-soft text-sm mb-8">Type a question. We'll answer using only what you uploaded, and show our work.</p>
+
+        <section class="space-y-3">
+          <label for="question" class="block text-xs font-medium text-ink-soft mb-1.5">Your question</label>
+          <div class="focus-ring rounded-lg">
+            <textarea id="question" rows="3" placeholder="e.g. What did lecture 4 say about eigenvalues?"
+              class="w-full rounded-lg border border-rule bg-white px-4 py-3 text-sm placeholder:text-ink-soft/50 resize-none transition-shadow"></textarea>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <p id="status" class="font-mono text-xs text-ink-soft min-h-[1em]"></p>
+            <button id="ask-btn" type="button" class="bg-ink text-paper-light rounded-full px-7 py-2.5 text-sm font-medium hover:bg-black transition-colors">
+              Ask
+            </button>
+          </div>
+        </section>
+
+        <!-- ANSWER -->
+        <section class="mt-8 flex-1">
+          <div id="answer" hidden class="bg-white rounded-xl border border-rule px-5 py-5 md:px-6 md:py-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-display text-lg font-semibold">Answer</h3>
+              <div class="flex items-center gap-2">
+                <p id="qtype-pill" class="pill" hidden></p>
+                <p id="tool-pill" class="pill" hidden></p>
+              </div>
+            </div>
+
+            <p id="answer-text" class="text-[15px] leading-relaxed text-ink"></p>
+
+            <details id="sources" hidden class="mt-5 pt-4 border-t border-rule">
+              <summary class="font-mono text-xs tracking-widest uppercase text-ink-soft cursor-pointer hover:text-ink">Sources</summary>
+              <ul id="sources-list" class="mt-3 space-y-1.5 text-sm text-ink-soft list-none"></ul>
+            </details>
+          </div>
+
+          <!-- Empty state, shown while #answer is hidden -->
+          <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center py-12 border border-dashed border-rule rounded-xl">
+            <p class="font-display italic text-xl text-ink-soft mb-1">Nothing asked yet.</p>
+            <p class="text-xs text-ink-soft/80 max-w-[32ch]">Upload a PDF on the left, then ask a question above — your answer will show up right here, sources included.</p>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+    <p class="text-center text-xs text-ink-soft mt-7 font-mono">AskMyNotes AI — your notes, answering back.</p>
+  </main>
+
+<script>
+  // Keep the empty-state placeholder in sync with the real #answer block,
+  // which app.js shows/hides by toggling the `hidden` attribute.
+  const answerEl = document.getElementById('answer');
+  const emptyState = document.getElementById('empty-state');
+  const syncEmptyState = () => {
+    emptyState.hidden = !answerEl.hidden;
+  };
+  new MutationObserver(syncEmptyState).observe(answerEl, { attributes: true, attributeFilter: ['hidden'] });
+  syncEmptyState();
+
+  // Lightweight drag-over styling + filename echo for the dropzone label.
+  const dropLabel = document.querySelector('label[for="pdf-input"]');
+  const pdfInput = document.getElementById('pdf-input');
+  ['dragenter', 'dragover'].forEach(evt =>
+    dropLabel.addEventListener(evt, e => { e.preventDefault(); dropLabel.classList.add('drag-over'); })
+  );
+  ['dragleave', 'drop'].forEach(evt =>
+    dropLabel.addEventListener(evt, e => { e.preventDefault(); dropLabel.classList.remove('drag-over'); })
+  );
+  dropLabel.addEventListener('drop', e => {
+    if (e.dataTransfer.files && e.dataTransfer.files.length) {
+      pdfInput.files = e.dataTransfer.files;
+      pdfInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+</script>
+
+<script src="app.js" defer></script>
+</body>
+</html>
