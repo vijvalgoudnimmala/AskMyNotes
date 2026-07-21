@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM getElementById() Demo</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 500px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        h1 {
+            padding: 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #0077ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005fd1;
+        }
+
+        #output {
+            margin-top: 20px;
+            background: #eef5ff;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1 id="main-heading">DOM Methods Demonstration</h1>
+
+    <button onclick="getElementByIdDemo()">
+        Click getElementById()
+    </button>
+
+    <h3>Output</h3>
+
+    <div id="output">
+        Click the button to see the result.
+    </div>
+
+</div>
+
+<script>
+
+function showOutput(message) {
+    document.getElementById("output").innerHTML = message;
+}
+
+function getElementByIdDemo() {
+
+    let heading = document.getElementById("main-heading");
+
+    heading.style.backgroundColor = "#d1ecf1";
+    heading.style.color = "#0c5460";
+
+    heading.innerText = "Selected using getElementById()";
+
+    showOutput(
+        "Method: getElementById()\n\n" +
+        "• It selects one HTML element using its unique id.\n\n" +
+        "Syntax:\n" +
+        "document.getElementById('id');"
+    );
+}
+
+</script>
+
+</body>
+</html>
