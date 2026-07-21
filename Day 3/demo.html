@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript DOM Selection Methods</title>
+
+    <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+
+<header>
+    <h1>JavaScript DOM Selection Methods</h1>
+    <p>HTML + CSS + JavaScript DOM Practice</p>
+</header>
+
+<div class="container">
+
+    <h2 id="main-heading">Welcome Students</h2>
+
+    <div class="section-title">
+        <h2>Student Details</h2>
+    </div>
+
+    <!-- Student 1 -->
+    <div class="student-card">
+        <h3>Student 1</h3>
+        <p>Name: Rahul</p>
+        <p>Branch: CSE</p>
+        <p>Year: 2nd Year</p>
+    </div>
+
+    <!-- Student 2 -->
+    <div class="student-card">
+        <h3>Student 2</h3>
+        <p>Name: Priya</p>
+        <p>Branch: AIML</p>
+        <p>Year: 2nd Year</p>
+    </div>
+
+    <!-- Student 3 -->
+    <div class="student-card">
+        <h3>Student 3</h3>
+        <p>Name: Arjun</p>
+        <p>Branch: CSM</p>
+        <p>Year: 1st Year</p>
+    </div>
+
+    <div class="section-title">
+        <h2>Courses</h2>
+    </div>
+
+    <div class="course important">HTML</div>
+    <div class="course">CSS</div>
+    <div class="course important">JavaScript</div>
+    <div class="course">React JS</div>
+
+    <div class="section-title">
+        <h2>DOM Methods</h2>
+    </div>
+
+    <button id="btn1">getElementById()</button>
+
+    <button id="btn2">getElementsByClassName()</button>
+
+    <button id="btn3">getElementsByTagName()</button>
+
+    <button id="btn4">querySelector()</button>
+
+    <button id="btn5">querySelectorAll()</button>
+
+    <button class="reset-btn" id="resetPage">Reset</button>
+
+    <div id="output">
+        Click any button to see the result here.
+    </div>
+
+</div>
+
+<script src="demo.js"></script>
+
+</body>
+</html>
