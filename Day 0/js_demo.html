@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1 id="demo">This is some text.</h1>
+    <button onclick="changeText()">Change Text</button>
+    <input type="button" onclick="sayHello()"value="Say Hello" id="button" style="background-color : yellow; color: red";>
+    <input type="text" onkeydown="customiseInput()">
+    <button id="btn">Click Me Again</button>
+    <script>
+        function changeText() {
+            let element = document.getElementById("demo");
+            element.textContent = "Text changed by JavaScript!";
+        }
+        // function changeText() {
+        //     let element = document.getElementById("demo");
+        //     element.textContent = "Text changed by JavaScript 2nd time!";
+        // }
+        const button=document.querySelector('#button');
+            button.addEventListener("click",function (event) {
+                const x= event.clientX;
+                const y= event.clientY;
+
+                alert(`Button clicked at X :${x},Y :${y}`);
+
+            });
+        const button1 =document.getElementById("btn");
+
+        button1.addEventListener("click",function () {
+            console.log("First");            
+        })
+        button1.addEventListener("click",function () {
+            console.log("Second");            
+        })
+        function customizeInput(){
+            var ele =document.getElementsByTagName("INPUT")[0];
+            ele.style.backgroundColor="yellow";
+            ele.style.color="red";
+        }
+      
+    </script>
+</body>
+</html>
